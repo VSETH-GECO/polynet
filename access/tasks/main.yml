@@ -1,0 +1,71 @@
+---
+  - name: configure provider
+    set_fact:
+      provider:
+        username: "{{ vault_user }}"
+        password: "{{ vault_password }}"
+        auth_pass: "{{ vault_enable }}"
+        host: "{{ ansible_host }}"
+        authorize: yes
+
+  - name: Setup local ports
+    ios_config:
+        provider: "{{ provider }}"
+        lines:
+          - switchport mode access
+          - spanning-tree portfast
+          - spanning-tree bpduguard enable
+          - switchport acces vlan {{ access_vlan.number }}
+        parents:  interface {{ item }}
+    with_items: "{{ access_range }}"
+
+  - name: Setup local ports
+    ios_config:
+        provider: "{{ provider }}"
+        lines:
+          - switchport mode trunk
+          - switchport trunk encapsulation dot1q
+        parents:  interface {{ item }}
+    with_items: "{{ trunk_range }}"
+
+  - name: Setup core VLAN Interface
+    ios_config:
+      provider: "{{ provider }}"
+      lines:
+        - description interconnect vlan
+        - ip address {{ access_vlan.core_ip }} 255.255.255.0
+      parents: interface vlan {{ vlans['core'].number }}
+  
+  - name: Setup access VLAN Interface
+    ios_config:
+      provider: "{{ provider }}"
+      lines:
+        - description {{ access_vlan.description }} vlan
+        - ip address {{ access_vlan.ip }} 255.255.255.0
+        - ip helper-address {{ dhcp0 }}
+        - ip helper-address {{ dhcp1 }}
+      parents: interface vlan {{ access_vlan.number }}
+
+  - name: Enable ip routing
+    ios_config:
+      provider: "{{ provider }}"
+      lines:
+        - ip routing
+
+  - name: Setup ospf core
+    ios_config:
+      provider: "{{ provider }}"
+      lines:
+        - log-adjacency-changes
+        - network {{ vlans['core'].subnet }} area 0.0.0.0
+      parents: router ospf 1
+
+  - name: Setup ospf access 
+    ios_config:
+      provider: "{{ provider }}"
+      lines:
+        - network {{ access_vlan.subnet }} area 0.0.0.0
+      parents: router ospf 1
+
+
+
