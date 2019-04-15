@@ -42,7 +42,7 @@ Setup the following line vty configuration parameters, where input transport is 
     # line vty 0 4
     (config-line)# transport input ssh
     (config-line)# login local
-    (config-line)# password 7
+    (config-line)# password 0 mypassword
     (config-line)# exit
 
 If you have not set the console line yet, set it to the following values.
@@ -60,11 +60,11 @@ If you don’t have an username created already, do it as shown below.
 
 Note: If you don’t have the enable password setup properly, do it now.
 
-    myswitch# enable secret myenablepassword
+    myswitch(config)# enable secret myenablepassword
 
 Make sure the password-encryption service is turned-on, which will encrypt the password, and when you do “sh run”, you’ll seee only the encrypted password and not clear-text password.
 
-    myswitch# service password-encryption
+    myswitch(config)# service password-encryption
 
 ### 6. Verify SSH access
 From the switch, if you do ‘sh ip ssh’, it will confirm that the SSH is enabled on this cisco device.
