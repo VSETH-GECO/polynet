@@ -47,6 +47,46 @@
           - no spanning-tree vlan {{ wan_vlan.number }}
     when: access_vlan.border_switch is defined and access_vlan.border_switch
    
+  - name: Setup port channel - border
+    ios_config:
+        provider: "{{ provider }}"
+        lines:
+          - no spanning-tree portfast
+          - no spanning-tree bpduguard enable
+          - switchport trunk encapsulation 
+          - switchport mode trunk
+          - switchport trunk allowed vlan {{ wan_vlan.number }}
+        parents:  "interface port-channel 1"
+    when: access_vlan.border_switch is defined and access_vlan.border_switch
+
+  - name: Setup misc po ports - border
+    ios_config:
+        provider: "{{ provider }}"
+        lines:
+          - no spanning-tree portfast
+          - no spanning-tree bpduguard enable
+          - switchport trunk encapsulation 
+          - switchport mode trunk
+          - channel-group 1 mode active
+          - switchport trunk allowed vlan {{ wan_vlan.number }}
+        parents:  interface {{ item }}
+    with_items: "{{ misc_po_range }}"
+    when: access_vlan.border_switch is defined and access_vlan.border_switch
+
+  - name: Setup misc po ports - trunk
+    ios_config:
+        provider: "{{ provider }}"
+        lines:
+          - no spanning-tree portfast
+          - no spanning-tree bpduguard enable
+          - switchport mode trunk
+          - switchport trunk encapsulation dot1q
+          - switchport trunk allowed {{ global_vlans }}
+        parents:  interface {{ item }}
+    with_items: "{{ misc_po_range }}"
+    when: access_vlan.border_switch is not defined or not access_vlan.border_switch
+
+
       
   - name: Setup misc ports - border
     ios_config:
