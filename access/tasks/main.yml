@@ -19,14 +19,60 @@
         parents:  interface {{ item }}
     with_items: "{{ access_range }}"
 
-  - name: Setup local ports
+  - name: Setup trunk ports
     ios_config:
         provider: "{{ provider }}"
         lines:
+          - no spanning-tree portfast
+          - no spanning-tree bpduguard enable
           - switchport mode trunk
           - switchport trunk encapsulation dot1q
+          - switchport trunk allowed {{ global_vlans }}
         parents:  interface {{ item }}
     with_items: "{{ trunk_range }}"
+
+
+  - name: Setup wan vlan
+    ios_config:
+        provider: "{{ provider }}"
+        lines:
+          - name WAN
+        parents:  vlan {{ wan_vlan.number }}
+    when: access_vlan.border_switch is defined and access_vlan.border_switch
+
+  - name: disable stp for wan vlan
+    ios_config:
+        provider: "{{ provider }}"
+        lines:
+          - no spanning-tree vlan {{ wan_vlan.number }}
+    when: access_vlan.border_switch is defined and access_vlan.border_switch
+   
+      
+  - name: Setup misc ports - border
+    ios_config:
+        provider: "{{ provider }}"
+        lines:
+          - no spanning-tree portfast
+          - no spanning-tree bpduguard enable
+          - no switchport trunk encapsulation 
+          - switchport mode access
+          - switchport acces vlan {{ wan_vlan.number }}
+        parents:  interface {{ item }}
+    with_items: "{{ misc_range }}"
+    when: access_vlan.border_switch is defined and access_vlan.border_switch
+
+  - name: Setup misc ports - trunk
+    ios_config:
+        provider: "{{ provider }}"
+        lines:
+          - no spanning-tree portfast
+          - no spanning-tree bpduguard enable
+          - switchport mode trunk
+          - switchport trunk encapsulation dot1q
+          - switchport trunk allowed {{ global_vlans }}
+        parents:  interface {{ item }}
+    with_items: "{{ misc_range }}"
+    when: access_vlan.border_switch is not defined or not access_vlan.border_switch
 
   - name: Setup core VLAN Interface
     ios_config:
@@ -45,6 +91,16 @@
         - ip helper-address {{ dhcp0 }}
         - ip helper-address {{ dhcp1 }}
       parents: interface vlan {{ access_vlan.number }}
+
+  - name: Setup WAN VLAN Interface
+    ios_config:
+      provider: "{{ provider }}"
+      lines:
+        - description wan vlan
+        - ip address {{ access_vlan.wan_ip }} 255.255.255.0
+      parents: interface vlan {{ wan_vlan.number }}
+    when: access_vlan.border_switch is defined and access_vlan.border_switch
+
 
   - name: Enable ip routing
     ios_config:
@@ -66,6 +122,17 @@
       lines:
         - network {{ access_vlan.subnet }} area 0.0.0.0
       parents: router ospf 1
+
+  - name: Setup ospf wan 
+    ios_config:
+      provider: "{{ provider }}"
+      lines:
+        - network {{ wan_vlan.subnet }} area 0.0.0.0
+      parents: router ospf 1
+    when: access_vlan.border_switch is defined and access_vlan.border_switch
+
+
+
 
 
 
