@@ -8,6 +8,15 @@
         host: "{{ ansible_host }}"
         authorize: yes
 
+  - name: Setup dhcp snooping
+    ios_config:
+        provider: "{{ provider }}"
+        lines:
+          - ip dhcp snooping vlan 500-2000
+          - ip dhcp snooping
+
+
+
   - name: Setup local ports
     ios_config:
         provider: "{{ provider }}"
@@ -15,6 +24,9 @@
           - switchport mode access
           - spanning-tree portfast
           - spanning-tree bpduguard enable
+          - ip verify source
+          - storm-control broadcast level pps 10k
+          - storm-control action shutdown
           - switchport acces vlan {{ access_vlan.number }}
         parents:  interface {{ item }}
     with_items: "{{ access_range }}"
@@ -26,6 +38,7 @@
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
           - switchport mode trunk
+          - ip dhcp snooping trust
           - switchport trunk encapsulation dot1q
           - switchport trunk allowed {{ global_vlans }}
         parents:  interface {{ item }}
@@ -80,6 +93,7 @@
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
           - switchport mode trunk
+          - ip dhcp snooping trust
           - switchport trunk encapsulation dot1q
           - switchport trunk allowed {{ global_vlans }}
         parents:  interface {{ item }}
@@ -108,6 +122,7 @@
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
           - switchport mode trunk
+          - ip dhcp snooping trust
           - switchport trunk encapsulation dot1q
           - switchport trunk allowed {{ global_vlans }}
         parents:  interface {{ item }}
