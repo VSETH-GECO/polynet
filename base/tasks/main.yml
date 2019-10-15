@@ -7,6 +7,8 @@
         auth_pass: "{{ vault_enable }}"
         host: "{{ ansible_host }}"
         authorize: yes
+    tags:
+      - radius
 
   - name: Setup hostname
     ios_config:
@@ -20,7 +22,7 @@
         lines:
           - snmp-server community {{ snmp_ro_string }} RO
 
-  - name: Disable vtp 
+  - name: Disable vtp
     ios_config:
       provider: "{{ provider }}"
       lines:
@@ -41,4 +43,66 @@
         - description mgmnt vlan
         - ip address {{ ansible_host }} 255.255.255.0
       parents: interface vlan 1
-  
+
+  - name: Enable AAA for Radius
+    when: polynet_base_enable_radius
+    ios_config:
+      provider: "{{ provider }}"
+      lines:
+        - aaa new-model
+        - aaa authentication dot1x default group radius
+        - aaa authorization network default group radius
+        - aaa accounting network default start-stop group radius
+        - aaa accounting dot1x default start-stop group radius
+        - aaa session-id common
+        - dot1x system-auth-control
+    tags:
+      - radius
+
+  - name: Setup RADIUS servers
+    when: polynet_base_enable_radius
+    ios_config:
+      provider: "{{ provider }}"
+      lines:
+        - radius-server host {{ item }} auth-port 1812 acct-port 1813
+    with_items: "{{ polynet_base_radius_servers }}"
+    tags:
+      - radius
+
+  - name: Setup RADIUS settings
+    when: polynet_base_enable_radius
+    ios_config:
+      provider: "{{ provider }}"
+      lines:
+        - radius-server key {{ polynet_base_radius_server_secret }}
+        - radius-server vsa send authentication
+        - radius-server retransmit 2
+        - radius-server timeout 3
+        - radius-server dead-criteria time 10
+        - radius-server deadtime 2
+        - radius-server load-balance method least-outstanding
+        - radius-server retry method reorder
+    tags:
+      - radius
+
+  # This will always be changed for some reason...
+  - name: Setup RADIUS CoA server clients
+    when: polynet_base_enable_radius_coa
+    ios_config:
+      provider: "{{ provider }}"
+      lines:
+        - client {{ item.ip }} server-key {{ item.secret }}
+      parents: aaa server radius dynamic-author
+    with_items: "{{ polynet_base_radius_coa_clients }}"
+    tags:
+      - radius
+
+  - name: Setup RADIUS CoA server settings
+    when: polynet_base_enable_radius_coa
+    ios_config:
+      provider: "{{ provider }}"
+      lines:
+        - port 3799
+      parents: aaa server radius dynamic-author
+    tags:
+      - radius
