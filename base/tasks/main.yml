@@ -52,6 +52,8 @@
         - aaa new-model
         - aaa authentication dot1x default group radius
         - aaa authorization network default group radius
+        - aaa authorization exec default if-authenticated
+        - aaa authorization network default if-authenticated
         - aaa accounting network default start-stop group radius
         - aaa accounting dot1x default start-stop group radius
         - aaa session-id common
