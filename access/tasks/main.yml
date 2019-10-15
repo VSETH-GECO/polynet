@@ -59,7 +59,7 @@
         lines:
           - no spanning-tree vlan {{ wan_vlan.number }}
     when: access_vlan.border_switch is defined and access_vlan.border_switch
-   
+
   - name: Setup port channel - border
     ios_config:
         provider: "{{ provider }}"
@@ -100,15 +100,13 @@
     with_items: "{{ misc_po_range }}"
     when: access_vlan.border_switch is not defined or not access_vlan.border_switch
 
-
-      
   - name: Setup misc ports - border
     ios_config:
         provider: "{{ provider }}"
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
-          - no switchport trunk encapsulation 
+          - no switchport trunk encapsulation
           - switchport mode access
           - switchport acces vlan {{ wan_vlan.number }}
         parents:  interface {{ item }}
@@ -136,7 +134,7 @@
         - description interconnect vlan
         - ip address {{ access_vlan.core_ip }} 255.255.255.0
       parents: interface vlan {{ vlans['core'].number }}
-  
+
   - name: Setup access VLAN Interface
     ios_config:
       provider: "{{ provider }}"
@@ -156,7 +154,6 @@
       parents: interface vlan {{ wan_vlan.number }}
     when: access_vlan.border_switch is defined and access_vlan.border_switch
 
-
   - name: Enable ip routing
     ios_config:
       provider: "{{ provider }}"
@@ -171,23 +168,17 @@
         - network {{ vlans['core'].subnet }} area 0.0.0.0
       parents: router ospf 1
 
-  - name: Setup ospf access 
+  - name: Setup ospf access
     ios_config:
       provider: "{{ provider }}"
       lines:
         - network {{ access_vlan.subnet }} area 0.0.0.0
       parents: router ospf 1
 
-  - name: Setup ospf wan 
+  - name: Setup ospf wan
     ios_config:
       provider: "{{ provider }}"
       lines:
         - network {{ wan_vlan.subnet }} area 0.0.0.0
       parents: router ospf 1
     when: access_vlan.border_switch is defined and access_vlan.border_switch
-
-
-
-
-
-
