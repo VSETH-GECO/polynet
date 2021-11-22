@@ -65,7 +65,9 @@
     ios_config:
       provider: "{{ provider }}"
       lines:
-        - radius-server host {{ item }} auth-port 1812 acct-port 1813
+        - address ipv4 {{ item.ip }} auth-port 1812 acct-port 1813
+        - key {{ item.secret }}
+      parents: radius server {{ item.name }}
     with_items: "{{ polynet_base_radius_servers }}"
     tags:
       - radius
@@ -75,7 +77,6 @@
     ios_config:
       provider: "{{ provider }}"
       lines:
-        - radius-server key {{ polynet_base_radius_server_secret }}
         - radius-server vsa send authentication
         - radius-server retransmit 2
         - radius-server timeout 3
