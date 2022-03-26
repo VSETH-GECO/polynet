@@ -1,15 +1,4 @@
 ---
-  - name: configure provider
-    set_fact:
-      provider:
-        username: "{{ vault_user }}"
-        password: "{{ vault_password }}"
-        auth_pass: "{{ vault_enable }}"
-        host: "{{ ansible_host }}"
-        authorize: yes
-    tags:
-      - radius
-
   - name: Setup hostname
     ios_config:
         lines:
@@ -98,3 +87,9 @@
       parents: aaa server radius dynamic-author
     tags:
       - radius
+
+  - name: Write configuration
+    when: polynet_persist_config
+    ios_command:
+      commands:
+        - write

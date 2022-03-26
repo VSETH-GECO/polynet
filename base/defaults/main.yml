@@ -4,5 +4,7 @@ polynet_base_enable_radius: False
 polynet_base_radius_servers: []
 polynet_base_enable_radius_coa: False
 polynet_base_radius_coa_clients: []
+
+polynet_persist_config: True
 #  - ip:
 #    secret:

@@ -1,13 +1,4 @@
 ---
-  - name: configure provider
-    set_fact:
-      provider:
-        username: "{{ vault_user }}"
-        password: "{{ vault_password }}"
-        auth_pass: "{{ vault_enable }}"
-        host: "{{ ansible_host }}"
-        authorize: yes
-
   - name: Setup dhcp snooping
     ios_config:
         lines:
@@ -177,3 +168,9 @@
         - network {{ wan_vlan.subnet }} area 0.0.0.0
       parents: router ospf 1
     when: access_vlan.border_switch is defined and access_vlan.border_switch
+
+  - name: Write configuration
+    ios_command:
+      commands:
+        - write
+    when: polynet_persist_config
