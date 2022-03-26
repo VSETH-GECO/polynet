@@ -12,25 +12,21 @@
 
   - name: Setup hostname
     ios_config:
-        provider: "{{ provider }}"
         lines:
           - hostname {{ inventory_hostname }}
 
   - name: Enable snmp
     ios_config:
-        provider: "{{ provider }}"
         lines:
           - snmp-server community {{ snmp_ro_string }} RO
 
   - name: Disable vtp
     ios_config:
-      provider: "{{ provider }}"
       lines:
         - vtp mode off
 
   - name: Setup vlans
     ios_config:
-        provider: "{{ provider }}"
         lines:
           - name {{ item.value.description}}
         parents:  vlan {{ item.value.number }}
@@ -38,16 +34,14 @@
 
   - name: Setup mgmnt VLAN Interface
     ios_config:
-      provider: "{{ provider }}"
       lines:
         - description mgmnt vlan
         - ip address {{ ansible_host }} 255.255.255.0
-      parents: interface vlan 1
+      parents: interface Vlan1
 
   - name: Enable AAA for Radius
     when: polynet_base_enable_radius
     ios_config:
-      provider: "{{ provider }}"
       lines:
         - aaa new-model
         - aaa authentication dot1x default group radius
@@ -63,9 +57,10 @@
   - name: Setup RADIUS servers
     when: polynet_base_enable_radius
     ios_config:
-      provider: "{{ provider }}"
       lines:
-        - radius-server host {{ item }} auth-port 1812 acct-port 1813
+        - address ipv4 {{ item.ip }} auth-port 1812 acct-port 1813
+        - key {{ item.secret }}
+      parents: radius server {{ item.name }}
     with_items: "{{ polynet_base_radius_servers }}"
     tags:
       - radius
@@ -73,9 +68,7 @@
   - name: Setup RADIUS settings
     when: polynet_base_enable_radius
     ios_config:
-      provider: "{{ provider }}"
       lines:
-        - radius-server key {{ polynet_base_radius_server_secret }}
         - radius-server vsa send authentication
         - radius-server retransmit 2
         - radius-server timeout 3
@@ -90,7 +83,6 @@
   - name: Setup RADIUS CoA server clients
     when: polynet_base_enable_radius_coa
     ios_config:
-      provider: "{{ provider }}"
       lines:
         - client {{ item.ip }} server-key {{ item.secret }}
       parents: aaa server radius dynamic-author
@@ -101,7 +93,6 @@
   - name: Setup RADIUS CoA server settings
     when: polynet_base_enable_radius_coa
     ios_config:
-      provider: "{{ provider }}"
       lines:
         - port 3799
       parents: aaa server radius dynamic-author
