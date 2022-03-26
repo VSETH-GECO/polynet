@@ -10,14 +10,12 @@
 
   - name: Setup dhcp snooping
     ios_config:
-        provider: "{{ provider }}"
         lines:
           - ip dhcp snooping vlan 500-2000
           - ip dhcp snooping
 
   - name: Setup local ports
     ios_config:
-        provider: "{{ provider }}"
         lines:
           - switchport mode access
           - spanning-tree portfast
@@ -32,7 +30,6 @@
   - name: Setup local ports (RADIUS)
     when: polynet_access_enable_radius_mab
     ios_config:
-        provider: "{{ provider }}"
         lines:
           - authentication order mab
           - authentication priority mab
@@ -47,20 +44,18 @@
 
   - name: Setup trunk ports
     ios_config:
-        provider: "{{ provider }}"
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
-          - switchport mode trunk
           - ip dhcp snooping trust
           - switchport trunk encapsulation dot1q
+          - switchport mode trunk
           - switchport trunk allowed {{ global_vlans }}
         parents:  interface {{ item }}
     with_items: "{{ trunk_range }}"
 
   - name: Setup wan vlan
     ios_config:
-        provider: "{{ provider }}"
         lines:
           - name WAN
         parents:  vlan {{ wan_vlan.number }}
@@ -68,14 +63,12 @@
 
   - name: disable stp for wan vlan
     ios_config:
-        provider: "{{ provider }}"
         lines:
           - no spanning-tree vlan {{ wan_vlan.number }}
     when: access_vlan.border_switch is defined and access_vlan.border_switch
 
   - name: Setup port channel - border
     ios_config:
-        provider: "{{ provider }}"
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
@@ -87,7 +80,6 @@
 
   - name: Setup misc po ports - border
     ios_config:
-        provider: "{{ provider }}"
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
@@ -101,13 +93,12 @@
 
   - name: Setup misc po ports - trunk
     ios_config:
-        provider: "{{ provider }}"
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
-          - switchport mode trunk
           - ip dhcp snooping trust
           - switchport trunk encapsulation dot1q
+          - switchport mode trunk
           - switchport trunk allowed {{ global_vlans }}
         parents:  interface {{ item }}
     with_items: "{{ misc_po_range }}"
@@ -115,7 +106,6 @@
 
   - name: Setup misc ports - border
     ios_config:
-        provider: "{{ provider }}"
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
@@ -128,13 +118,12 @@
 
   - name: Setup misc ports - trunk
     ios_config:
-        provider: "{{ provider }}"
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
-          - switchport mode trunk
           - ip dhcp snooping trust
           - switchport trunk encapsulation dot1q
+          - switchport mode trunk
           - switchport trunk allowed {{ global_vlans }}
         parents:  interface {{ item }}
     with_items: "{{ misc_range }}"
@@ -142,7 +131,6 @@
 
   - name: Setup core VLAN Interface
     ios_config:
-      provider: "{{ provider }}"
       lines:
         - description interconnect vlan
         - ip address {{ access_vlan.core_ip }} 255.255.255.0
@@ -150,7 +138,6 @@
 
   - name: Setup access VLAN Interface
     ios_config:
-      provider: "{{ provider }}"
       lines:
         - description {{ access_vlan.description }} vlan
         - ip address {{ access_vlan.ip }} 255.255.255.0
@@ -160,7 +147,6 @@
 
   - name: Setup WAN VLAN Interface
     ios_config:
-      provider: "{{ provider }}"
       lines:
         - description wan vlan
         - ip address {{ access_vlan.wan_ip }} 255.255.255.0
@@ -169,13 +155,11 @@
 
   - name: Enable ip routing
     ios_config:
-      provider: "{{ provider }}"
       lines:
         - ip routing
 
   - name: Setup ospf core
     ios_config:
-      provider: "{{ provider }}"
       lines:
         - log-adjacency-changes
         - network {{ vlans['core'].subnet }} area 0.0.0.0
@@ -183,14 +167,12 @@
 
   - name: Setup ospf access
     ios_config:
-      provider: "{{ provider }}"
       lines:
         - network {{ access_vlan.subnet }} area 0.0.0.0
       parents: router ospf 1
 
   - name: Setup ospf wan
     ios_config:
-      provider: "{{ provider }}"
       lines:
         - network {{ wan_vlan.subnet }} area 0.0.0.0
       parents: router ospf 1
