@@ -1,0 +1,37 @@
+---
+#  - name: Gather facts
+#    icx_facts:
+#      gather_subset: all
+
+        #  - name: Configure management interface
+        #    icx_l3_interface:
+        #      name: ve 1
+        #      ipv4: "{{ icx_mgmt_ip }}"
+
+        #  - name: Configure users
+        #    icx_user:
+        #      aggregate: "{{ icx_users }}"
+        #      purge: "yes"
+
+  - name: System config
+    icx_system:
+      hostname: "{{ inventory_hostname }}"
+      domain_name: "{{ polynet_core_domain_name }}"
+
+  - name: General setup
+    icx_config:
+      lines:
+        - enable acl-per-port-per-vlan
+        - aaa authentication web-server default local
+        - aaa authentication enable default local
+        - aaa authentication enable implicit-user
+        - aaa authentication login default local
+        - aaa authentication login privilege-mode
+        - jumbo
+        - enable aaa console
+        - logging console
+        - no telnet server
+        - ip multicast active
+        - ip multicast leave-wait-time 4
+        - clock summer-time
+        - web-management https
