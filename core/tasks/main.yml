@@ -45,3 +45,13 @@
         name:
           - ethernet 1/1/1 to 1/1/23
     with_dict: "{{ global_vlans }}"
+
+
+  - name: Setup LAG 
+    icx_linkagg:
+      name: px1
+      group: 1
+      mode: dynamic
+      members:
+        - ethernet 1/1/23 to 1/1/24
+
