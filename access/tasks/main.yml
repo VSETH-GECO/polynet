@@ -144,9 +144,12 @@
       lines:
         - description {{ access_vlan.description }} vlan
         - ip address {{ access_vlan.ip }} 255.255.255.0
+        - no ip helper-address
         - ip helper-address {{ dhcp0 }}
         - ip helper-address {{ dhcp1 }}
       parents: interface vlan {{ access_vlan.number }}
+    tags:
+      - access-vlan
 
   - name: Setup WAN VLAN Interface
     ios_config:
