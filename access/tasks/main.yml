@@ -51,36 +51,42 @@
           - name WAN
         parents:  vlan {{ wan_vlan.number }}
     when: access_vlan.border_switch is defined and access_vlan.border_switch
+    tags:
+      - wan
 
   - name: disable stp for wan vlan
     ios_config:
         lines:
           - no spanning-tree vlan {{ wan_vlan.number }}
     when: access_vlan.border_switch is defined and access_vlan.border_switch
+    tags:
+      - wan
 
   - name: Setup port channel - border
     ios_config:
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
-          - switchport trunk encapsulation dot1q
-          - switchport mode trunk
-          - switchport trunk allowed vlan {{ wan_vlan.number }}
+          - switchport mode access
+          - switchport access vlan {{ wan_vlan.number }}
         parents:  "interface port-channel 1"
     when: access_vlan.border_switch is defined and access_vlan.border_switch
+    tags:
+      - wan
 
   - name: Setup misc po ports - border
     ios_config:
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
-          - switchport trunk encapsulation dot1q
-          - switchport mode trunk
+          - switchport mode access
+          - switchport access vlan {{ wan_vlan.number }}
           - channel-group 1 mode active
-          - switchport trunk allowed vlan {{ wan_vlan.number }}
         parents:  interface {{ item }}
     with_items: "{{ misc_po_range }}"
     when: access_vlan.border_switch is defined and access_vlan.border_switch
+    tags:
+      - wan
 
   - name: Setup misc po ports - trunk
     ios_config:
@@ -94,18 +100,22 @@
         parents:  interface {{ item }}
     with_items: "{{ misc_po_range }}"
     when: access_vlan.border_switch is not defined or not access_vlan.border_switch
+    tags:
+      - wan
 
   - name: Setup misc ports - border
     ios_config:
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
-          - no switchport trunk encapsulation
           - switchport mode access
           - switchport acces vlan {{ wan_vlan.number }}
+          - no switchport trunk encapsulation
         parents:  interface {{ item }}
     with_items: "{{ misc_range }}"
     when: access_vlan.border_switch is defined and access_vlan.border_switch
+    tags:
+      - wan
 
   - name: Setup misc ports - trunk
     ios_config:
@@ -119,6 +129,8 @@
         parents:  interface {{ item }}
     with_items: "{{ misc_range }}"
     when: access_vlan.border_switch is not defined or not access_vlan.border_switch
+    tags:
+      - wan
 
   - name: Setup core VLAN Interface
     ios_config:
@@ -143,6 +155,8 @@
         - ip address {{ access_vlan.wan_ip }} 255.255.255.0
       parents: interface vlan {{ wan_vlan.number }}
     when: access_vlan.border_switch is defined and access_vlan.border_switch
+    tags:
+      - wan
 
   - name: Enable ip routing
     ios_config:
@@ -168,6 +182,8 @@
         - network {{ wan_vlan.subnet }} area 0.0.0.0
       parents: router ospf 1
     when: access_vlan.border_switch is defined and access_vlan.border_switch
+    tags:
+      - wan
 
   - name: Write configuration
     ios_command:
