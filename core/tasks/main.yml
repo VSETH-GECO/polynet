@@ -1,12 +1,9 @@
 ---
-#  - name: Gather facts
-#    icx_facts:
-#      gather_subset: all
+  - name: Gather facts
+    icx_facts:
+      gather_subset: all
 
-        #  - name: Configure management interface
-        #    icx_l3_interface:
-        #      name: ve 1
-        #      ipv4: "{{ icx_mgmt_ip }}"
+
 
         #  - name: Configure users
         #    icx_user:
@@ -35,3 +32,16 @@
         - ip multicast leave-wait-time 4
         - clock summer-time
         - web-management https
+        - spanning-tree
+
+  - name: Setup core VLANs
+    icx_vlan:
+      vlan_id: "{{ item.value.number }}"
+      name: "{{ item.value.description }}"
+      stp:
+        enabled: true
+        priority: 65530
+      tagged:
+        name:
+          - ethernet 1/1/1 to 1/1/23
+    with_dict: "{{ global_vlans }}"

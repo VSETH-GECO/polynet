@@ -14,12 +14,12 @@
       lines:
         - vtp mode off
 
-  - name: Setup vlans
+  - name: Setup global vlans
     ios_config:
         lines:
           - name {{ item.value.description}}
         parents:  vlan {{ item.value.number }}
-    with_dict: "{{ vlans }}"
+    with_dict: "{{ global_vlans }}"
 
   - name: Setup mgmnt VLAN Interface
     ios_config:

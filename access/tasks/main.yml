@@ -5,6 +5,12 @@
           - ip dhcp snooping vlan 500-2000
           - ip dhcp snooping
 
+  - name: Setup access vlan
+    ios_config:
+        lines:
+          - name {{ access_vlan.description}}
+        parents:  vlan {{ access_vlan.number }}
+
   - name: Setup local ports
     ios_config:
         lines:
@@ -41,7 +47,7 @@
           - ip dhcp snooping trust
           - switchport trunk encapsulation dot1q
           - switchport mode trunk
-          - switchport trunk allowed {{ global_vlans }}
+          - switchport trunk allowed {{ global_vlan_range }}
         parents:  interface {{ item }}
     with_items: "{{ trunk_range }}"
 
@@ -96,7 +102,7 @@
           - ip dhcp snooping trust
           - switchport trunk encapsulation dot1q
           - switchport mode trunk
-          - switchport trunk allowed {{ global_vlans }}
+          - switchport trunk allowed {{ global_vlan_range }}
         parents:  interface {{ item }}
     with_items: "{{ misc_po_range }}"
     when: access_vlan.border_switch is not defined or not access_vlan.border_switch
@@ -125,7 +131,7 @@
           - ip dhcp snooping trust
           - switchport trunk encapsulation dot1q
           - switchport mode trunk
-          - switchport trunk allowed {{ global_vlans }}
+          - switchport trunk allowed {{ global_vlan_range }}
         parents:  interface {{ item }}
     with_items: "{{ misc_range }}"
     when: access_vlan.border_switch is not defined or not access_vlan.border_switch
@@ -137,7 +143,7 @@
       lines:
         - description interconnect vlan
         - ip address {{ access_vlan.core_ip }} 255.255.255.0
-      parents: interface vlan {{ vlans['core'].number }}
+      parents: interface vlan {{ .number }}
 
   - name: Setup access VLAN Interface
     ios_config:
@@ -170,7 +176,7 @@
     ios_config:
       lines:
         - log-adjacency-changes
-        - network {{ vlans['core'].subnet }} area 0.0.0.0
+        - network {{ core_vlan.subnet }} area 0.0.0.0
       parents: router ospf 1
 
   - name: Setup ospf access
