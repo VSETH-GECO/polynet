@@ -39,6 +39,21 @@
         parents:  interface {{ item }}
     with_items: "{{ access_range }}"
 
+  - name: Setup local ports (disable RADIUS)
+    when: not polynet_access_enable_radius_mab
+    cisco.ios.ios_config:
+        lines:
+          - no authentication order
+          - no authentication priority
+          - no authentication port-control
+          - no authentication periodic
+          - no authentication timer reauthenticate
+          - no mab
+          - no dot1x pae
+          - no dot1x max-req
+        parents:  interface {{ item }}
+    with_items: "{{ access_range }}"
+
   - name: Setup trunk ports
     cisco.ios.ios_config:
         lines:
@@ -143,7 +158,9 @@
       lines:
         - description interconnect vlan
         - ip address {{ access_vlan.core_ip }} 255.255.255.0
-      parents: interface vlan {{ .number }}
+      parents: interface vlan {{ core_vlan.number }}
+    tags:
+      - core_vlan
 
   - name: Setup access VLAN Interface
     cisco.ios.ios_config:
