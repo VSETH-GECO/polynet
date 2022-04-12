@@ -1,28 +1,28 @@
 ---
   - name: Setup hostname
-    ios_config:
+    cisco.ios.ios_config:
         lines:
           - hostname {{ inventory_hostname }}
 
   - name: Enable snmp
-    ios_config:
+    cisco.ios.ios_config:
         lines:
           - snmp-server community {{ snmp_ro_string }} RO
 
   - name: Disable vtp
-    ios_config:
+    cisco.ios.ios_config:
       lines:
         - vtp mode off
 
   - name: Setup global vlans
-    ios_config:
+    cisco.ios.ios_config:
         lines:
           - name {{ item.value.description}}
         parents:  vlan {{ item.value.number }}
     with_dict: "{{ global_vlans }}"
 
   - name: Setup mgmnt VLAN Interface
-    ios_config:
+    cisco.ios.ios_config:
       lines:
         - description mgmnt vlan
         - ip address {{ ansible_host }} 255.255.255.0
@@ -30,7 +30,7 @@
 
   - name: Enable AAA for Radius
     when: polynet_base_enable_radius
-    ios_config:
+    cisco.ios.ios_config:
       lines:
         - aaa new-model
         - aaa authentication dot1x default group radius
@@ -45,7 +45,7 @@
 
   - name: Setup RADIUS servers
     when: polynet_base_enable_radius
-    ios_config:
+    cisco.ios.ios_config:
       lines:
         - address ipv4 {{ item.ip }} auth-port 1812 acct-port 1813
         - key {{ item.secret }}
@@ -56,7 +56,7 @@
 
   - name: Setup RADIUS settings
     when: polynet_base_enable_radius
-    ios_config:
+    cisco.ios.ios_config:
       lines:
         - radius-server vsa send authentication
         - radius-server retransmit 2
@@ -71,7 +71,7 @@
   # This will always be changed for some reason...
   - name: Setup RADIUS CoA server clients
     when: polynet_base_enable_radius_coa
-    ios_config:
+    cisco.ios.ios_config:
       lines:
         - client {{ item.ip }} server-key {{ item.secret }}
       parents: aaa server radius dynamic-author
@@ -81,7 +81,7 @@
 
   - name: Setup RADIUS CoA server settings
     when: polynet_base_enable_radius_coa
-    ios_config:
+    cisco.ios.ios_config:
       lines:
         - port 3799
       parents: aaa server radius dynamic-author

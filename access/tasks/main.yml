@@ -1,18 +1,18 @@
 ---
   - name: Setup dhcp snooping
-    ios_config:
+    cisco.ios.ios_config:
         lines:
           - ip dhcp snooping vlan 500-2000
           - ip dhcp snooping
 
   - name: Setup access vlan
-    ios_config:
+    cisco.ios.ios_config:
         lines:
           - name {{ access_vlan.description}}
         parents:  vlan {{ access_vlan.number }}
 
   - name: Setup local ports
-    ios_config:
+    cisco.ios.ios_config:
         lines:
           - switchport mode access
           - spanning-tree portfast
@@ -26,7 +26,7 @@
 
   - name: Setup local ports (RADIUS)
     when: polynet_access_enable_radius_mab
-    ios_config:
+    cisco.ios.ios_config:
         lines:
           - authentication order mab
           - authentication priority mab
@@ -40,7 +40,7 @@
     with_items: "{{ access_range }}"
 
   - name: Setup trunk ports
-    ios_config:
+    cisco.ios.ios_config:
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
@@ -52,7 +52,7 @@
     with_items: "{{ trunk_range }}"
 
   - name: Setup wan vlan
-    ios_config:
+    cisco.ios.ios_config:
         lines:
           - name WAN
         parents:  vlan {{ wan_vlan.number }}
@@ -61,7 +61,7 @@
       - wan
 
   - name: disable stp for wan vlan
-    ios_config:
+    cisco.ios.ios_config:
         lines:
           - no spanning-tree vlan {{ wan_vlan.number }}
     when: access_vlan.border_switch is defined and access_vlan.border_switch
@@ -69,7 +69,7 @@
       - wan
 
   - name: Setup port channel - border
-    ios_config:
+    cisco.ios.ios_config:
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
@@ -81,7 +81,7 @@
       - wan
 
   - name: Setup misc po ports - border
-    ios_config:
+    cisco.ios.ios_config:
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
@@ -95,7 +95,7 @@
       - wan
 
   - name: Setup misc po ports - trunk
-    ios_config:
+    cisco.ios.ios_config:
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
@@ -110,7 +110,7 @@
       - wan
 
   - name: Setup misc ports - border
-    ios_config:
+    cisco.ios.ios_config:
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
@@ -124,7 +124,7 @@
       - wan
 
   - name: Setup misc ports - trunk
-    ios_config:
+    cisco.ios.ios_config:
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
@@ -139,14 +139,14 @@
       - wan
 
   - name: Setup core VLAN Interface
-    ios_config:
+    cisco.ios.ios_config:
       lines:
         - description interconnect vlan
         - ip address {{ access_vlan.core_ip }} 255.255.255.0
       parents: interface vlan {{ .number }}
 
   - name: Setup access VLAN Interface
-    ios_config:
+    cisco.ios.ios_config:
       lines:
         - description {{ access_vlan.description }} vlan
         - ip address {{ access_vlan.ip }} 255.255.255.0
@@ -158,7 +158,7 @@
       - access-vlan
 
   - name: Setup WAN VLAN Interface
-    ios_config:
+    cisco.ios.ios_config:
       lines:
         - description wan vlan
         - ip address {{ access_vlan.wan_ip }} 255.255.255.0
@@ -168,25 +168,25 @@
       - wan
 
   - name: Enable ip routing
-    ios_config:
+    cisco.ios.ios_config:
       lines:
         - ip routing
 
   - name: Setup ospf core
-    ios_config:
+    cisco.ios.ios_config:
       lines:
         - log-adjacency-changes
         - network {{ core_vlan.subnet }} area 0.0.0.0
       parents: router ospf 1
 
   - name: Setup ospf access
-    ios_config:
+    cisco.ios.ios_config:
       lines:
         - network {{ access_vlan.subnet }} area 0.0.0.0
       parents: router ospf 1
 
   - name: Setup ospf wan
-    ios_config:
+    cisco.ios.ios_config:
       lines:
         - network {{ wan_vlan.subnet }} area 0.0.0.0
       parents: router ospf 1
@@ -195,7 +195,7 @@
       - wan
 
   - name: Write configuration
-    ios_command:
+    cisco.ios.ios_command:
       commands:
         - write
     when: polynet_persist_config
