@@ -24,6 +24,26 @@
       lines:
         - logging host {{ syslog_host }}
 
+  - name: Setup napalm RO user
+    cisco.ios.ios_config:
+      lines:
+        - privilege exec level 4 dir all-filesystems
+        - privilege exec level 4 dir
+        - privilege exec level 4 show inventory raw
+        - privilege exec level 4 show inventory
+        - privilege exec level 4 show vlan
+        - privilege exec level 4 show vtp status
+        - privilege exec level 4 show vtp
+        - privilege exec level 4 show idprom
+        - privilege exec level 4 show env all
+        - privilege exec level 4 show env
+        - privilege exec level 4 show boot
+        - privilege exec level 4 show version
+        - privilege exec level 4 show debugging
+        - privilege exec level 4 show controllers
+        - privilege exec level 4 show running-config
+        - privilege exec level 4 show
+        - username napalmviewer privilege 4 secret napalmviewer
 
   - name: Setup global vlans
     cisco.ios.ios_config:
