@@ -12,7 +12,9 @@
           - name {{ access_vlan.description}}
         parents:  vlan {{ access_vlan.number }}
 
-  - name: Setup local ports
+
+  - name: Setup local ports (RADIUS)
+    when: polynet_access_enable_radius_mab
     cisco.ios.ios_config:
         lines:
           - switchport mode access
@@ -21,14 +23,7 @@
           - ip verify source
           - storm-control broadcast level pps 10k
           - storm-control action shutdown
-          - switchport acces vlan {{ access_vlan.number }}
-        parents:  interface {{ item }}
-    with_items: "{{ access_range }}"
-
-  - name: Setup local ports (RADIUS)
-    when: polynet_access_enable_radius_mab
-    cisco.ios.ios_config:
-        lines:
+          - switchport acces vlan {{ polynet_access_login_vlan }}
           - authentication order mab
           - authentication priority mab
           - authentication port-control auto
@@ -44,6 +39,13 @@
     when: not polynet_access_enable_radius_mab
     cisco.ios.ios_config:
         lines:
+          - switchport mode access
+          - spanning-tree portfast
+          - spanning-tree bpduguard enable
+          - ip verify source
+          - storm-control broadcast level pps 10k
+          - storm-control action shutdown
+          - switchport acces vlan {{ access_vlan.number }}
           - no authentication order
           - no authentication priority
           - no authentication port-control
