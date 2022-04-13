@@ -1,8 +1,9 @@
 ---
   - name: Setup dhcp snooping
+    when: polynet_access_enable_dhcp_snooping
     cisco.ios.ios_config:
         lines:
-          - ip dhcp snooping vlan 500-2000
+          - ip dhcp snooping vlan 400-2000
           - ip dhcp snooping
 
   - name: Setup access vlan

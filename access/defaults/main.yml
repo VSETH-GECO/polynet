@@ -1,3 +1,6 @@
 polynet_access_enable_radius_mab: True
+polynet_access_enable_dhcp_snooping: True
 
 polynet_persist_config: True
+
+
