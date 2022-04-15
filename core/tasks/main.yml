@@ -66,6 +66,13 @@
         name:
           - ethernet 1/1/1 to 1/1/23
 
+  - name: Enable routing on shared vlans
+    with_items: "{{ polynet_core_provided_vlans }}"
+    icx_config:
+      parents: "vlan {{ item.vlan }} name {{ item.name }} by port"
+      lines:
+        - router-interface ve {{ item.vlan }
+
   - name: Setup shared VLAN interfaces
     with_items: "{{ polynet_core_provided_vlans }}"
     icx_config:
