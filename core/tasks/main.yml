@@ -54,7 +54,16 @@
       members:
         - ethernet 1/1/23 to 1/1/24
 
-  - name: Setup shared vlans
+  - name: Setup shared VLANs
+    with_items: "{{ polynet_core_provided_vlans }}"
+    icx_vlan:
+      vlan_id: "{{ item.vlan }}"
+      name: "{{ item.name }}"
+      stp:
+        enabled: true
+        priority: 65530
+
+  - name: Setup shared VLAN interfaces
     with_items: "{{ polynet_core_provided_vlans }}"
     icx_config:
       parents: "interface ve {{ item.vlan }}"
