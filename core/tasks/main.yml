@@ -78,7 +78,7 @@
     icx_config:
       parents: "interface ve {{ item.vlan }}"
       lines:
-       - ip address 10.233.64.2 255.255.255.0
+       - ip address {{ item.switchconf[inventory_hostname].ip }} 255.255.255.0
        - ip helper-address 1 {{ polynet_core_dhcp_helper_a }}
        - ip helper-address 2 {{ polynet_core_dhcp_helper_b }}
        - ip ospf area 0.0.0.0
