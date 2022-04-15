@@ -1,3 +1,17 @@
 ---
 polynet_core_domain_name: polylan.local
 
+polynet_core_dhcp_helper_a: 10.233.246.0
+polynet_core_dhcp_helper_b: 10.233.246.1
+
+polynet_core_provided_vlans:
+  - name: shared1
+    vlan: 490
+    vrrp: 90
+    switchconf:
+      core1:
+        ip: 10.233.90.2
+        role: owner
+      core2:
+        ip: 10.233.90.3
+        role: backup
