@@ -33,6 +33,7 @@
         - clock summer-time
         - web-management https
         - spanning-tree
+        - ip load-sharing 8
 
   - name: Setup core VLANs
     icx_vlan:
@@ -92,5 +93,15 @@
         - "ip vrrp vrid {{ item.vrrp }}"
       lines:
         - "{{ item.switchconf[inventory_hostname].role }}"
-        - ip-address "{{ item.switchconf[inventory_hostname].role }}"
+        - ip-address "{{ item.haip }}"
         - activate
+
+  - name: Setup shared vlans vrrp (backup)
+    with_items: "{{ polynet_core_provided_vlans }}"
+    when: item.switchconf[inventory_hostname].role == "backup"
+    icx_config:
+      parents:
+        - "interface ve {{ item.vlan }}"
+        - "ip vrrp vrid {{ item.vrrp }}"
+      lines:
+        - advertise backup

@@ -8,6 +8,7 @@ polynet_core_provided_vlans:
   - name: shared1
     vlan: 490
     vrrp: 90
+    haip: 10.233.90.1
     switchconf:
       core1:
         ip: 10.233.90.2
