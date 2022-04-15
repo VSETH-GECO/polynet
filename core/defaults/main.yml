@@ -11,8 +11,96 @@ polynet_core_provided_vlans:
     haip: 10.233.90.1
     switchconf:
       core1:
-        ip: 10.233.90.2
+        ip: 10.233.90.1
         role: owner
       core2:
-        ip: 10.233.90.3
+        ip: 10.233.90.2
+        role: backup
+  - name: shared2
+    vlan: 491
+    vrrp: 91
+    haip: 10.233.91.1
+    switchconf:
+      core1:
+        ip: 10.233.91.1
+        role: owner
+      core2:
+        ip: 10.233.91.2
+        role: backup
+  - name: shared3
+    vlan: 492
+    vrrp: 92
+    haip: 10.233.92.1
+    switchconf:
+      core1:
+        ip: 10.233.92.1
+        role: owner
+      core2:
+        ip: 10.233.92.2
+        role: backup
+  - name: shared4
+    vlan: 493
+    vrrp: 93
+    haip: 10.233.93.1
+    switchconf:
+      core1:
+        ip: 10.233.93.1
+        role: owner
+      core2:
+        ip: 10.233.93.2
+        role: backup
+  - name: shared5
+    vlan: 494
+    vrrp: 94
+    haip: 10.233.94.1
+    switchconf:
+      core1:
+        ip: 10.233.94.1
+        role: owner
+      core2:
+        ip: 10.233.94.2
+        role: backup
+  - name: shared6
+    vlan: 495
+    vrrp: 95
+    haip: 10.233.94.1
+    switchconf:
+      core1:
+        ip: 10.233.95.1
+        role: owner
+      core2:
+        ip: 10.233.95.2
+        role: backup
+  - name: shared7
+    vlan: 496
+    vrrp: 96
+    haip: 10.233.96.1
+    switchconf:
+      core1:
+        ip: 10.233.96.1
+        role: owner
+      core2:
+        ip: 10.233.96.2
+        role: backup
+  - name: shared8
+    vlan: 497
+    vrrp: 97
+    haip: 10.233.97.1
+    switchconf:
+      core1:
+        ip: 10.233.97.1
+        role: owner
+      core2:
+        ip: 10.233.97.2
+        role: backup
+  - name: shared9
+    vlan: 498
+    vrrp: 98
+    haip: 10.233.98.1
+    switchconf:
+      core1:
+        ip: 10.233.98.1
+        role: owner
+      core2:
+        ip: 10.233.98.2
         role: backup
