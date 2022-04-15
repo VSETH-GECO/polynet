@@ -62,6 +62,9 @@
       stp:
         enabled: true
         priority: 65530
+      tagged:
+        name:
+          - ethernet 1/1/1 to 1/1/23
 
   - name: Setup shared VLAN interfaces
     with_items: "{{ polynet_core_provided_vlans }}"
