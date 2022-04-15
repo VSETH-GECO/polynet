@@ -93,7 +93,7 @@
         - "ip vrrp vrid {{ item.vrrp }}"
       lines:
         - "{{ item.switchconf[inventory_hostname].role }}"
-        - ip-address "{{ item.haip }}"
+        - ip-address {{ item.haip }}
         - activate
 
   - name: Setup shared vlans vrrp (backup)
