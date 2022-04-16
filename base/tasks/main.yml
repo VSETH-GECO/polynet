@@ -56,6 +56,8 @@
           - name {{ item.value.description}}
         parents:  vlan {{ item.value.number }}
     with_dict: "{{ global_vlans }}"
+    tags:
+      - globalvlans
 
   - name: Setup mgmnt VLAN Interface
     cisco.ios.ios_config:

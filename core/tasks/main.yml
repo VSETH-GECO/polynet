@@ -34,6 +34,7 @@
         - web-management https
         - spanning-tree
         - ip load-sharing 8
+        - logging host {{ syslog_host }}
 
   - name: Setup core VLANs
     icx_vlan:
