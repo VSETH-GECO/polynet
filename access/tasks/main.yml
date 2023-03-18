@@ -7,12 +7,11 @@
           - ip dhcp snooping
 
   - name: Setup access vlan
-    cisco.ios.ios_config:
-        lines:
-          - name {{ access_vlan.description}}
-        parents:  vlan {{ access_vlan.number }}
-
-
+    cisco.ios.ios_vlans:
+      config:
+      - name: "{{ access_vlan.description }}"
+        vlan_id: "{{ access_vlan.number }}"
+        
   - name: Setup local ports (RADIUS)
     when: polynet_access_enable_radius_mab
     cisco.ios.ios_config:
@@ -69,12 +68,12 @@
         parents:  interface {{ item }}
     with_items: "{{ trunk_range }}"
 
-  - name: Setup wan vlan
-    cisco.ios.ios_config:
-        lines:
-          - name WAN
-        parents:  vlan {{ wan_vlan.number }}
-    when: access_vlan.border_switch is defined and access_vlan.border_switch
+  - name: Setup WAN Vlan
+    cisco.ios.ios_vlans:
+      config:
+        - name: WAN
+          vlan_id: "{{ wan_vlan.number }}"
+      state: "{{ 'merged' if  access_vlan.border_switch is defined and access_vlan.border_switch else 'deleted' }}"
     tags:
       - wan
 
@@ -86,17 +85,32 @@
     tags:
       - wan
 
-  - name: Setup port channel - border
+  - name: Setup port channel - border interface
+    cisco.ios.ios_l2_interfaces:
+      config:
+        access:
+          vlan: "{{wan_vlan.number }}"
+        mode: "access"
+      state: "{{ 'merged' if  access_vlan.border_switch is defined and access_vlan.border_switch else 'deleted' }}"
+
+  - name: Setup port channel - border spanning tree config
     cisco.ios.ios_config:
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
-          - switchport mode access
-          - switchport access vlan {{ wan_vlan.number }}
         parents:  "interface port-channel 1"
     when: access_vlan.border_switch is defined and access_vlan.border_switch
     tags:
       - wan
+
+  # - name: Setup misc po ports - border interface
+  #   cisco.ios.ios_l2_interfaces:
+  #     config:
+  #       - name: "{{item}}"
+  #         access:
+  #           vlan: "{{ wan_vlan.number }}"
+  #         mode: "access"
+  #     state: "{{ 'merged' if  access_vlan.border_switch is defined and access_vlan.border_switch else 'deleted' }}"
 
   - name: Setup misc po ports - border
     cisco.ios.ios_config:
@@ -176,6 +190,19 @@
       parents: interface vlan {{ access_vlan.number }}
     tags:
       - access-vlan
+
+  # - name: Setup access VLAN Interface description
+  #   cisco.ios.ios_interfaces:
+  #     config:
+  #       - name: Vlan{{ access_vlan.number }}
+  #         description: {{ access_vlan.description }} vlan
+  #     state: merged
+  
+  # - name: Setup access VLAN Interface settings
+  #   cisco.ios.ios_l3_interfaces:
+  #     config:
+  #       - name: Vlan{{ access_vlan.number }}
+
 
   - name: Setup WAN VLAN Interface
     cisco.ios.ios_config:

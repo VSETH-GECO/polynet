@@ -1,13 +1,15 @@
 ---
   - name: Setup hostname
-    cisco.ios.ios_config:
-        lines:
-          - hostname {{ inventory_hostname }}
+    cisco.ios.ios_hostname:
+        config:
+          hostname: "{{ inventory_hostname }}"
 
   - name: Enable snmp
-    cisco.ios.ios_config:
-        lines:
-          - snmp-server community {{ snmp_ro_string }} RO
+    cisco.ios.ios_snmp_server:
+      config:
+        communities:
+          - name: "{{snmp_ro_string}}"
+            ro: true
 
   - name: Disable vtp
     cisco.ios.ios_config:
@@ -29,7 +31,7 @@
       lines:
         - logging host {{ syslog_host }}
 
-  - name: Setup napalm RO user
+  - name: Setup napalm user permissions
     cisco.ios.ios_config:
       lines:
         - privilege exec level 4 dir all-filesystems
@@ -48,22 +50,30 @@
         - privilege exec level 4 show controllers
         - privilege exec level 4 show running-config
         - privilege exec level 4 show
-        - username napalmviewer privilege 4 secret napalmviewer
+
+  - name: Setup napalm RO user
+    cisco.ios.ios_user:
+      name: napalmviewer
+      privilege: 4
+      configured_password: napalmviewer
+      password_type: secret
+      update_password: on_create
 
   - name: Setup global vlans
-    cisco.ios.ios_config:
-        lines:
-          - name {{ item.value.description}}
-        parents:  vlan {{ item.value.number }}
+    cisco.ios.ios_vlans:
+      config:
+        - name: "{{ item.value.description}}"
+          vlan_id: "{{ item.value.number }}"
+      state: "merged"
     with_dict: "{{ global_vlans }}"
     tags:
       - globalvlans
 
   - name: Setup mgmnt VLAN Interface
-    cisco.ios.ios_config:
-      lines:
-        - description mgmnt vlan
-      parents: interface Vlan1
+    cisco.ios.ios_interfaces:
+      config:
+        - name: Vlan1
+          description: mgmnt vlan
 
   - name: Enable AAA for Radius
     when: polynet_base_enable_radius
