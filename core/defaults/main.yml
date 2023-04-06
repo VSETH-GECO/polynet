@@ -342,31 +342,4 @@ polynet_core_provided_vlans:
         ip: 10.233.13.1
         ip6: 2001:67c:10ec:4c70:0:1:0:1301
         role: owner
-  - name: user14
-    vlan: 514
-    vrrp: 64
-    haip: 10.233.14.1
-    haip6: 2001:67c:10ec:4c70:0:1:0:1401
-    switchconf:
-      core1:
-        ip: 10.233.14.1
-        ip6: 2001:67c:10ec:4c70:0:1:0:1401
-        role: owner
-      core2:
-        ip: 10.233.14.2
-        ip6: 2001:67c:10ec:4c70:0:1:0:1402
-        role: backup
-  - name: user15
-    vlan: 515
-    vrrp: 65
-    haip: 10.233.15.1
-    haip6: 2001:67c:10ec:4c70:0:1:0:1501
-    switchconf:
-      core1:
-        ip: 10.233.15.2
-        ip6: 2001:67c:10ec:4c70:0:1:0:1502
-        role: backup
-      core2:
-        ip: 10.233.15.1
-        ip6: 2001:67c:10ec:4c70:0:1:0:1501
-        role: owner
+  # user14 and 15 are not accessible from core

@@ -116,30 +116,29 @@
     tags:
       - wan
 
-  - name: Setup misc po ports - border interface
-    cisco.ios.ios_l2_interfaces:
-      config:
-        - name: "{{item}}"
-          access:
-            vlan: "{{ wan_vlan.number }}"
-          mode: "access"
-      state: "overridden"
-    when: access_vlan.border_switch is defined and access_vlan.border_switch
-    with_items: "{{ misc_po_range }}"
-    tags:
-      - wan
+#  - name: Setup misc po ports - border interface
+#    cisco.ios.ios_l2_interfaces:
+#      config:
+#        - name: "{{item}}"
+#          access:
+#            vlan: "{{ wan_vlan.number }}"
+#          mode: "access"
+#     state: "overridden"
+#    when: access_vlan.border_switch is defined and access_vlan.border_switch
+ #   with_items: "{{ misc_po_range }}"
+ #   tags:
+#      - wan
 
-  - name: Setup misc po ports - border config
-    cisco.ios.ios_config:
-        lines:
-          - no spanning-tree portfast
-          - no spanning-tree bpduguard enable
-          - channel-group 1 mode active
-        parents:  interface {{ item }}
-    with_items: "{{ misc_po_range }}"
-    when: access_vlan.border_switch is defined and access_vlan.border_switch
-    tags:
-      - wan
+ #   cisco.ios.ios_config:
+ #       lines:
+ #         - no spanning-tree portfast
+ #         - no spanning-tree bpduguard enable
+ #         - channel-group 1 mode active
+ #       parents:  interface {{ item }}
+ #   with_items: "{{ misc_po_range }}"
+ #   when: access_vlan.border_switch is defined and access_vlan.border_switch
+ #   tags:
+ #     - wan
 
   # - name: Setup misc po ports - trunk interface
   #   cisco.ios.ios_l2_interfaces:
@@ -155,7 +154,7 @@
   #   tags:
   #     - wan
 
-  - name: Setup misc po ports - trunk conifg
+  - name: Setup misc po ports - trunk config
     cisco.ios.ios_config:
         lines:
           - no spanning-tree portfast
@@ -178,6 +177,7 @@
           - switchport mode access
           - switchport acces vlan {{ wan_vlan.number }}
           - no switchport trunk encapsulation
+          - spanning-tree bpdufilter enable
         parents:  interface {{ item }}
     with_items: "{{ misc_range }}"
     when: access_vlan.border_switch is defined and access_vlan.border_switch
@@ -220,6 +220,16 @@
     tags:
       - access-vlan
 
+  - name: Setup access VLAN Interface (DHCP forwarding)
+    cisco.ios.ios_config:
+      lines:
+        - ip helper-address {{ dhcp0 }}
+        - ip helper-address {{ dhcp1 }}
+      parents: interface vlan {{ access_vlan.number }}
+    when: access_vlan.border_switch is defined and access_vlan.border_switch
+    tags:
+      - access-vlan
+
   # - name: Setup access VLAN Interface description
   #   cisco.ios.ios_interfaces:
   #     config:
@@ -247,7 +257,7 @@
       config:
       - name: Vlan{{ wan_vlan.number }}
         ipv4:
-          address: "{{ access_vlan.wan_ip }}/24"
+          - address: "{{ access_vlan.wan_ip }}/24"
     when: access_vlan.border_switch is defined and access_vlan.border_switch
     tags:
       - wan
@@ -302,6 +312,22 @@
     when: access_vlan.border_switch is not defined or not access_vlan.border_switch
     tags:
       - ospf
+
+  - name: Setup default route via upstream router
+    cisco.ios.ios_config:
+      lines:
+        - ip route 0.0.0.0 0.0.0.0 {{ access_vlan.dhcp.router }}
+    when: access_vlan.border_switch is not defined or not access_vlan.border_switch
+    tags:
+      - wan
+
+  - name: Remove default route via upstream router
+    cisco.ios.ios_config:
+      lines:
+        - no ip route 0.0.0.0 0.0.0.0 {{ access_vlan.dhcp.router }}
+    when: access_vlan.border_switch is defined and access_vlan.border_switch
+    tags:
+      - wan
 
   - name: Write configuration
     cisco.ios.ios_command:
