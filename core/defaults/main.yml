@@ -23,6 +23,7 @@ polynet_core_provided_vlans:
     vlan: 490
     vrrp: 90
     haip: 10.233.90.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:9001
     switchconf:
       core1:
         ip: 10.233.90.1
@@ -36,6 +37,7 @@ polynet_core_provided_vlans:
     vlan: 491
     vrrp: 91
     haip: 10.233.91.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:9101
     switchconf:
       core1:
         ip: 10.233.91.2
@@ -49,6 +51,7 @@ polynet_core_provided_vlans:
     vlan: 492
     vrrp: 92
     haip: 10.233.92.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:9201
     switchconf:
       core1:
         ip: 10.233.92.1
@@ -62,6 +65,7 @@ polynet_core_provided_vlans:
     vlan: 493
     vrrp: 93
     haip: 10.233.93.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:9301
     switchconf:
       core1:
         ip: 10.233.93.2
@@ -75,6 +79,7 @@ polynet_core_provided_vlans:
     vlan: 494
     vrrp: 94
     haip: 10.233.94.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:9401
     switchconf:
       core1:
         ip: 10.233.94.1
@@ -88,6 +93,7 @@ polynet_core_provided_vlans:
     vlan: 495
     vrrp: 95
     haip: 10.233.95.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:9501
     switchconf:
       core1:
         ip: 10.233.95.2
@@ -101,6 +107,7 @@ polynet_core_provided_vlans:
     vlan: 496
     vrrp: 96
     haip: 10.233.96.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:9601
     switchconf:
       core1:
         ip: 10.233.96.1
@@ -114,6 +121,7 @@ polynet_core_provided_vlans:
     vlan: 497
     vrrp: 97
     haip: 10.233.97.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:9701
     switchconf:
       core1:
         ip: 10.233.97.2
@@ -127,6 +135,7 @@ polynet_core_provided_vlans:
     vlan: 498
     vrrp: 98
     haip: 10.233.98.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:9801
     switchconf:
       core1:
         ip: 10.233.98.1
@@ -154,6 +163,7 @@ polynet_core_provided_vlans:
     vlan: 501
     vrrp: 51
     haip: 10.233.1.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:0101
     switchconf:
       core1:
         ip: 10.233.1.2
@@ -167,6 +177,7 @@ polynet_core_provided_vlans:
     vlan: 502
     vrrp: 52
     haip: 10.233.2.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:0201
     switchconf:
       core1:
         ip: 10.233.2.1
@@ -180,6 +191,7 @@ polynet_core_provided_vlans:
     vlan: 503
     vrrp: 53
     haip: 10.233.3.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:0301
     switchconf:
       core1:
         ip: 10.233.3.2
@@ -193,6 +205,7 @@ polynet_core_provided_vlans:
     vlan: 504
     vrrp: 54
     haip: 10.233.4.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:0401
     switchconf:
       core1:
         ip: 10.233.4.1
@@ -206,6 +219,7 @@ polynet_core_provided_vlans:
     vlan: 505
     vrrp: 55
     haip: 10.233.5.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:0501
     switchconf:
       core1:
         ip: 10.233.5.2
@@ -219,6 +233,7 @@ polynet_core_provided_vlans:
     vlan: 506
     vrrp: 56
     haip: 10.233.6.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:0601
     switchconf:
       core1:
         ip: 10.233.6.1
@@ -232,6 +247,7 @@ polynet_core_provided_vlans:
     vlan: 507
     vrrp: 57
     haip: 10.233.7.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:0701
     switchconf:
       core1:
         ip: 10.233.7.2
@@ -245,6 +261,7 @@ polynet_core_provided_vlans:
     vlan: 508
     vrrp: 58
     haip: 10.233.8.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:0801
     switchconf:
       core1:
         ip: 10.233.8.1
@@ -258,6 +275,7 @@ polynet_core_provided_vlans:
     vlan: 509
     vrrp: 59
     haip: 10.233.9.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:0901
     switchconf:
       core1:
         ip: 10.233.9.2
@@ -271,6 +289,7 @@ polynet_core_provided_vlans:
     vlan: 510
     vrrp: 60
     haip: 10.233.10.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:1001
     switchconf:
       core1:
         ip: 10.233.10.1
@@ -284,6 +303,7 @@ polynet_core_provided_vlans:
     vlan: 511
     vrrp: 61
     haip: 10.233.11.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:1101
     switchconf:
       core1:
         ip: 10.233.11.2
@@ -297,6 +317,7 @@ polynet_core_provided_vlans:
     vlan: 512
     vrrp: 62
     haip: 10.233.12.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:1201
     switchconf:
       core1:
         ip: 10.233.12.1
@@ -310,6 +331,7 @@ polynet_core_provided_vlans:
     vlan: 513
     vrrp: 63
     haip: 10.233.13.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:1301
     switchconf:
       core1:
         ip: 10.233.13.2
@@ -323,6 +345,7 @@ polynet_core_provided_vlans:
     vlan: 514
     vrrp: 64
     haip: 10.233.14.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:1401
     switchconf:
       core1:
         ip: 10.233.14.1
@@ -336,6 +359,7 @@ polynet_core_provided_vlans:
     vlan: 515
     vrrp: 65
     haip: 10.233.15.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:1501
     switchconf:
       core1:
         ip: 10.233.15.2

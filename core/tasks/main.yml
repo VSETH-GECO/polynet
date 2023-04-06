@@ -170,18 +170,7 @@
        - ipv6 ospf area 0.0.0.0
        - ip vrrp vrid {{ item.vrrp }}
 
-  - name: Setup shared vlans vrrp (backup)
-    with_items: "{{ polynet_core_provided_vlans }}"
-    when: item.switchconf[inventory_hostname].role == "backup"
-    icx_config:
-      parents:
-        - "interface ve {{ item.vlan }}"
-      lines:
-        - no ip vrrp vrid {{ item.vrrp }}
-    tags:
-      - vrrp
-
-  - name: Setup shared vlans vrrp (backup)
+  - name: Setup shared vlans vrrp (v4, backup)
     with_items: "{{ polynet_core_provided_vlans }}"
     when: item.switchconf[inventory_hostname].role == "backup"
     icx_config:
@@ -196,7 +185,7 @@
     tags:
       - vrrp
 
-  - name: Setup shared vlans vrrp
+  - name: Setup shared vlans vrrp (v4)
     with_items: "{{ polynet_core_provided_vlans }}"
     icx_config:
       parents:
@@ -206,6 +195,33 @@
         - "{{ item.switchconf[inventory_hostname].role }}"
         - version v3
         - ip-address {{ item.haip }}
+        - activate
+    tags:
+      - vrrp
+
+  - name: Setup shared vlans vrrp (v6, backup)
+    with_items: "{{ polynet_core_provided_vlans }}"
+    when: item.switchconf[inventory_hostname].role == "backup"
+    icx_config:
+      parents:
+        - "interface ve {{ item.vlan }}"
+        - "ipv6 vrrp vrid {{ item.vrrp }}"
+      lines:
+        - "{{ item.switchconf[inventory_hostname].role }}"
+        - accept-mode
+        - advertise backup
+    tags:
+      - vrrp
+
+  - name: Setup shared vlans vrrp (v6)
+    with_items: "{{ polynet_core_provided_vlans }}"
+    icx_config:
+      parents:
+        - "interface ve {{ item.vlan }}"
+        - "ipv6 vrrp vrid {{ item.vrrp }}"
+      lines:
+        - "{{ item.switchconf[inventory_hostname].role }}"
+        - ipv6-address {{ item.haip }}
         - activate
     tags:
       - vrrp
