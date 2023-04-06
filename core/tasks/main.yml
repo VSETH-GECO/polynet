@@ -1,4 +1,6 @@
 ---
+  # YOU NEED TO GATHER FACTS HERE
+  # If you don't, the connection will not work.
   - name: Gather facts
     icx_facts:
       gather_subset: all
@@ -11,7 +13,7 @@
         #      purge: "yes"
 
   - name: System config
-    icx_system:
+    community.network.icx_system:
       hostname: "{{ inventory_hostname }}"
       domain_name: "{{ polynet_core_domain_name }}"
 
@@ -35,6 +37,25 @@
         - spanning-tree
         - ip load-sharing 8
         - logging host {{ syslog_host }}
+        - optical-monitor 15
+        - ip dhcp-client disable
+        - ipv6 unicast-routing
+        - router vrrp
+        - ipv6 router vrrp
+
+  - name: Turn on OSPF
+    icx_config:
+      parents: "router ospf"
+      lines:
+        - area 0.0.0.0
+        - log all
+
+  - name: Turn on OSPF3
+    icx_config:
+      parents: "ipv6 router ospf"
+      lines:
+        - area 0.0.0.0
+        #- log all
 
   - name: Setup core VLANs
     icx_vlan:
@@ -45,16 +66,76 @@
         priority: 65530
       tagged:
         name:
-          - ethernet 1/1/1 to 1/1/23
+          - ethernet 1/1/1 to 1/1/48
     with_dict: "{{ global_vlans }}"
 
-  - name: Setup LAG 
+  - name: Setup cross-switch LAG 
     icx_linkagg:
       name: px1
       group: 1
       mode: dynamic
       members:
-        - ethernet 1/1/23 to 1/1/24
+        - ethernet 1/2/1 to 1/2/2
+
+  - name: Setup upstream LAG
+    icx_linkagg:
+      name: px2
+      group: 2
+      mode: dynamic
+      members:
+        - ethernet 1/1/55 to 1/1/56
+
+  - name: Setup cross-switch vlan
+    icx_vlan:
+      vlan_id: "4093"
+      name: "sync"
+      stp:
+        enabled: true
+      tagged:
+        name:
+          - ethernet 1/2/1 to 1/2/2
+
+  - name: Setup upstream vlan
+    icx_vlan:
+      vlan_id: "199"
+      name: "eth"
+      stp:
+        enabled: false
+      interfaces:
+        name:
+          - ethernet 1/1/55 to 1/1/56
+
+  - name: Enable routing on cross-switch vlan
+    icx_config:
+      parents: "vlan 4093"
+      lines:
+        - router-interface ve 4093
+
+  - name: Enable routing on upstream vlan
+    icx_config:
+      parents: "vlan 199"
+      lines:
+        - router-interface ve 199
+
+  - name: Setup cross-switch vlan IP
+    icx_config:
+      parents: "interface ve 4093"
+      lines:
+        - ip address {{ polynet_core_config[inventory_hostname].ip }} 255.255.255.0
+        - ipv6 address {{ polynet_core_config[inventory_hostname].ip6 }}/120
+        - ip ospf area 0.0.0.0
+        - ipv6 ospf area 0.0.0.0
+        - spanning-tree
+
+  - name: Setup upstream vlan IP
+    icx_config:
+      parents: "interface ve 199"
+      lines:
+        - ip address {{ polynet_core_config[inventory_hostname].upstream_ip }} 255.255.255.0
+        - ipv6 address {{ polynet_core_config[inventory_hostname].upstream_ip6 }}/120
+        - ip ospf area 0.0.0.0
+        - ipv6 ospf area 0.0.0.0
+        - no spanning-tree
 
   - name: Setup shared VLANs
     with_items: "{{ polynet_core_provided_vlans }}"
@@ -62,11 +143,12 @@
       vlan_id: "{{ item.vlan }}"
       name: "{{ item.name }}"
       stp:
-        enabled: true
+        enabled: "{{ item.vlan != 199 }}"
         priority: 65530
       tagged:
         name:
-          - ethernet 1/1/1 to 1/1/23
+          - ethernet 1/1/1 to 1/1/48
+          - ethernet 1/2/1 to 1/2/2
 
   - name: Enable routing on shared vlans
     with_items: "{{ polynet_core_provided_vlans }}"
@@ -80,22 +162,24 @@
     icx_config:
       parents: "interface ve {{ item.vlan }}"
       lines:
-       - ip address {{ item.switchconf[inventory_hostname].ip }} 255.255.255.0
+       - ip address {{ item.switchconf[inventory_hostname].ip }} {{ item.netmask|default('255.255.255.0') }}
+       - ipv6 address {{ item.switchconf[inventory_hostname].ip6 }}/120
        - ip helper-address 1 {{ polynet_core_dhcp_helper_a }}
        - ip helper-address 2 {{ polynet_core_dhcp_helper_b }}
        - ip ospf area 0.0.0.0
+       - ipv6 ospf area 0.0.0.0
        - ip vrrp vrid {{ item.vrrp }}
 
-  - name: Setup shared vlans vrrp
+  - name: Setup shared vlans vrrp (backup)
     with_items: "{{ polynet_core_provided_vlans }}"
+    when: item.switchconf[inventory_hostname].role == "backup"
     icx_config:
       parents:
         - "interface ve {{ item.vlan }}"
-        - "ip vrrp vrid {{ item.vrrp }}"
       lines:
-        - "{{ item.switchconf[inventory_hostname].role }}"
-        - ip-address {{ item.haip }}
-        - activate
+        - no ip vrrp vrid {{ item.vrrp }}
+    tags:
+      - vrrp
 
   - name: Setup shared vlans vrrp (backup)
     with_items: "{{ polynet_core_provided_vlans }}"
@@ -105,4 +189,23 @@
         - "interface ve {{ item.vlan }}"
         - "ip vrrp vrid {{ item.vrrp }}"
       lines:
+        - "{{ item.switchconf[inventory_hostname].role }}"
+        - version v3
+        - accept-mode
         - advertise backup
+    tags:
+      - vrrp
+
+  - name: Setup shared vlans vrrp
+    with_items: "{{ polynet_core_provided_vlans }}"
+    icx_config:
+      parents:
+        - "interface ve {{ item.vlan }}"
+        - "ip vrrp vrid {{ item.vrrp }}"
+      lines:
+        - "{{ item.switchconf[inventory_hostname].role }}"
+        - version v3
+        - ip-address {{ item.haip }}
+        - activate
+    tags:
+      - vrrp
