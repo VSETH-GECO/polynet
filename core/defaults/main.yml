@@ -149,6 +149,7 @@ polynet_core_provided_vlans:
     vlan: 499
     vrrp: 99
     haip: 10.233.64.1
+    haip6: 2001:67c:10ec:4c70:0:1:0:1801
     netmask: 255.255.248.0
     switchconf:
       core1:
@@ -163,127 +164,127 @@ polynet_core_provided_vlans:
     vlan: 501
     vrrp: 51
     haip: 10.233.1.1
-    haip6: 2001:67c:10ec:4c70:0:1:0:0101
+    haip6: 2001:67c:10ec:4c70:0:1:0:101
     switchconf:
       core1:
         ip: 10.233.1.2
-        ip6: 2001:67c:10ec:4c70:0:1:0:0102
+        ip6: 2001:67c:10ec:4c70:0:1:0:102
         role: backup
       core2:
         ip: 10.233.1.1
-        ip6: 2001:67c:10ec:4c70:0:1:0:0101
+        ip6: 2001:67c:10ec:4c70:0:1:0:101
         role: owner
   - name: user2
     vlan: 502
     vrrp: 52
     haip: 10.233.2.1
-    haip6: 2001:67c:10ec:4c70:0:1:0:0201
+    haip6: 2001:67c:10ec:4c70:0:1:0:201
     switchconf:
       core1:
         ip: 10.233.2.1
-        ip6: 2001:67c:10ec:4c70:0:1:0:0201
+        ip6: 2001:67c:10ec:4c70:0:1:0:201
         role: owner
       core2:
         ip: 10.233.2.2
-        ip6: 2001:67c:10ec:4c70:0:1:0:0202
+        ip6: 2001:67c:10ec:4c70:0:1:0:202
         role: backup
   - name: user3
     vlan: 503
     vrrp: 53
     haip: 10.233.3.1
-    haip6: 2001:67c:10ec:4c70:0:1:0:0301
+    haip6: 2001:67c:10ec:4c70:0:1:0:301
     switchconf:
       core1:
         ip: 10.233.3.2
-        ip6: 2001:67c:10ec:4c70:0:1:0:0302
+        ip6: 2001:67c:10ec:4c70:0:1:0:302
         role: backup
       core2:
         ip: 10.233.3.1
-        ip6: 2001:67c:10ec:4c70:0:1:0:0301
+        ip6: 2001:67c:10ec:4c70:0:1:0:301
         role: owner
   - name: user4
     vlan: 504
     vrrp: 54
     haip: 10.233.4.1
-    haip6: 2001:67c:10ec:4c70:0:1:0:0401
+    haip6: 2001:67c:10ec:4c70:0:1:0:401
     switchconf:
       core1:
         ip: 10.233.4.1
-        ip6: 2001:67c:10ec:4c70:0:1:0:0401
+        ip6: 2001:67c:10ec:4c70:0:1:0:401
         role: owner
       core2:
         ip: 10.233.4.2
-        ip6: 2001:67c:10ec:4c70:0:1:0:0402
+        ip6: 2001:67c:10ec:4c70:0:1:0:402
         role: backup
   - name: user5
     vlan: 505
     vrrp: 55
     haip: 10.233.5.1
-    haip6: 2001:67c:10ec:4c70:0:1:0:0501
+    haip6: 2001:67c:10ec:4c70:0:1:0:501
     switchconf:
       core1:
         ip: 10.233.5.2
-        ip6: 2001:67c:10ec:4c70:0:1:0:0502
+        ip6: 2001:67c:10ec:4c70:0:1:0:502
         role: backup
       core2:
         ip: 10.233.5.1
-        ip6: 2001:67c:10ec:4c70:0:1:0:0501
+        ip6: 2001:67c:10ec:4c70:0:1:0:501
         role: owner
   - name: user6
     vlan: 506
     vrrp: 56
     haip: 10.233.6.1
-    haip6: 2001:67c:10ec:4c70:0:1:0:0601
+    haip6: 2001:67c:10ec:4c70:0:1:0:601
     switchconf:
       core1:
         ip: 10.233.6.1
-        ip6: 2001:67c:10ec:4c70:0:1:0:0601
+        ip6: 2001:67c:10ec:4c70:0:1:0:601
         role: owner
       core2:
         ip: 10.233.6.2
-        ip6: 2001:67c:10ec:4c70:0:1:0:0602
+        ip6: 2001:67c:10ec:4c70:0:1:0:602
         role: backup
   - name: user7
     vlan: 507
     vrrp: 57
     haip: 10.233.7.1
-    haip6: 2001:67c:10ec:4c70:0:1:0:0701
+    haip6: 2001:67c:10ec:4c70:0:1:0:701
     switchconf:
       core1:
         ip: 10.233.7.2
-        ip6: 2001:67c:10ec:4c70:0:1:0:0702
+        ip6: 2001:67c:10ec:4c70:0:1:0:702
         role: backup
       core2:
         ip: 10.233.7.1
-        ip6: 2001:67c:10ec:4c70:0:1:0:0701
+        ip6: 2001:67c:10ec:4c70:0:1:0:701
         role: owner
   - name: user8
     vlan: 508
     vrrp: 58
     haip: 10.233.8.1
-    haip6: 2001:67c:10ec:4c70:0:1:0:0801
+    haip6: 2001:67c:10ec:4c70:0:1:0:801
     switchconf:
       core1:
         ip: 10.233.8.1
-        ip6: 2001:67c:10ec:4c70:0:1:0:0801
+        ip6: 2001:67c:10ec:4c70:0:1:0:801
         role: owner
       core2:
         ip: 10.233.8.2
-        ip6: 2001:67c:10ec:4c70:0:1:0:0802
+        ip6: 2001:67c:10ec:4c70:0:1:0:802
         role: backup
   - name: user9
     vlan: 509
     vrrp: 59
     haip: 10.233.9.1
-    haip6: 2001:67c:10ec:4c70:0:1:0:0901
+    haip6: 2001:67c:10ec:4c70:0:1:0:901
     switchconf:
       core1:
         ip: 10.233.9.2
-        ip6: 2001:67c:10ec:4c70:0:1:0:0902
+        ip6: 2001:67c:10ec:4c70:0:1:0:902
         role: backup
       core2:
         ip: 10.233.9.1
-        ip6: 2001:67c:10ec:4c70:0:1:0:0901
+        ip6: 2001:67c:10ec:4c70:0:1:0:901
         role: owner
   - name: user10
     vlan: 510

@@ -212,6 +212,7 @@
         - advertise backup
     tags:
       - vrrp
+      - vrrp6
 
   - name: Setup shared vlans vrrp (v6)
     with_items: "{{ polynet_core_provided_vlans }}"
@@ -221,7 +222,8 @@
         - "ipv6 vrrp vrid {{ item.vrrp }}"
       lines:
         - "{{ item.switchconf[inventory_hostname].role }}"
-        - ipv6-address {{ item.haip }}
+        - ipv6-address {{ item.haip6 }}
         - activate
     tags:
       - vrrp
+      - vrrp6
