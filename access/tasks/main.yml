@@ -62,7 +62,8 @@
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
           - ip dhcp snooping trust
-          - switchport trunk encapsulation dot1q
+          # This can be needed on the old 3750s
+          # - switchport trunk encapsulation dot1q
           - switchport mode trunk
           - switchport trunk allowed {{ global_vlan_range }}
         parents:  interface {{ item }}

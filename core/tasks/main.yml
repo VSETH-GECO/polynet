@@ -42,6 +42,7 @@
         - ipv6 unicast-routing
         - router vrrp
         - ipv6 router vrrp
+        - snmp-server community public ro
 
   - name: Turn on OSPF
     icx_config:
