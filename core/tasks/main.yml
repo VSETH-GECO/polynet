@@ -6,7 +6,6 @@
       gather_subset: all
 
 
-
         #  - name: Configure users
         #    icx_user:
         #      aggregate: "{{ icx_users }}"
@@ -43,6 +42,7 @@
         - router vrrp
         - ipv6 router vrrp
         - snmp-server community public ro
+        - system-max spanning-tree 96
 
   - name: Turn on OSPF
     icx_config:
@@ -64,13 +64,12 @@
       name: "{{ item.value.description }}"
       stp:
         enabled: true
-        priority: 65530
       tagged:
         name:
           - ethernet 1/1/1 to 1/1/48
     with_dict: "{{ global_vlans }}"
 
-  - name: Setup cross-switch LAG 
+  - name: Setup cross-switch LAG
     icx_linkagg:
       name: px1
       group: 1
@@ -144,11 +143,12 @@
       vlan_id: "{{ item.vlan }}"
       name: "{{ item.name }}"
       stp:
+        # Do not enable STP on the upstream vlan
         enabled: "{{ item.vlan != 199 }}"
-        priority: 65530
+        priority: "{{ 10 if item.switchconf[inventory_hostname].role == 'owner' else 20 }}"
       tagged:
         name:
-          - ethernet 1/1/1 to 1/1/48
+          - ethernet {{ item.port }}
           - ethernet 1/2/1 to 1/2/2
 
   - name: Enable routing on shared vlans

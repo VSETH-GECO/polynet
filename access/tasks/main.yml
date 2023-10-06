@@ -6,6 +6,12 @@
           - ip dhcp snooping vlan 400-2000
           - ip dhcp snooping
 
+  - name: Setup rapid PVST
+    cisco.ios.ios_config:
+      lines:
+        - spanning-tree mode rapid-pvst
+        - spanning-tree vlan 1-4094
+
   - name: Setup access vlan
     cisco.ios.ios_vlans:
       config:
