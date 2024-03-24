@@ -12,6 +12,11 @@
         - spanning-tree mode rapid-pvst
         - spanning-tree vlan 1-4094
 
+  - name: Setup LLDP
+    cisco.ios.ios_config:
+      lines:
+        - lldp run
+
   - name: Setup access vlan
     cisco.ios.ios_vlans:
       config:
@@ -37,6 +42,8 @@
           - mab
           - dot1x pae authenticator
           - dot1x max-req 3
+          - lldp transmit
+          - lldp receive
         parents:  interface {{ item }}
     with_items: "{{ access_range }}"
 
@@ -59,6 +66,8 @@
           - no mab
           - no dot1x pae
           - no dot1x max-req
+          - lldp transmit
+          - lldp receive
         parents:  interface {{ item }}
     with_items: "{{ access_range }}"
 

@@ -43,6 +43,8 @@
         - ipv6 router vrrp
         - snmp-server community public ro
         - system-max spanning-tree 96
+        - lldp enable ports all
+        - lldp run
 
   - name: Turn on OSPF
     icx_config:
