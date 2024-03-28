@@ -71,158 +71,42 @@
         parents:  interface {{ item }}
     with_items: "{{ access_range }}"
 
-  - name: Setup trunk ports
+  - name: Setup uplink trunk ports
     cisco.ios.ios_config:
         lines:
           - no spanning-tree portfast
           - no spanning-tree bpduguard enable
           - ip dhcp snooping trust
-          # This can be needed on the old 3750s
-          # - switchport trunk encapsulation dot1q
           - switchport mode trunk
           - switchport trunk allowed {{ global_vlan_range }}
+          - switchport trunk native {{ access_vlan.number }}
         parents:  interface {{ item }}
     with_items: "{{ trunk_range }}"
 
-  - name: Setup trunk ports - non WAN
-    cisco.ios.ios_config:
-      lines:
-        - switchport trunk allowed {{ global_vlan_range }},{{ access_vlan.number }}
-      parents: interface {{ item }}
-    with_items: "{{ trunk_range }}"
-    when: access_vlan.border_switch is not defined or not access_vlan.border_switch
-    tags:
-      - wan
-
-  - name: Setup WAN Vlan
-    cisco.ios.ios_vlans:
-      config:
-        - name: WAN
-          vlan_id: "{{ wan_vlan.number }}"
-      state: "{{ 'merged' if  access_vlan.border_switch is defined and access_vlan.border_switch else 'deleted' }}"
-    tags:
-      - wan
-
-  - name: disable stp for wan vlan
-    cisco.ios.ios_config:
-        lines:
-          - no spanning-tree vlan {{ wan_vlan.number }}
-    when: access_vlan.border_switch is defined and access_vlan.border_switch
-    tags:
-      - wan
-
-  - name: Setup port channel - border interface
-    cisco.ios.ios_l2_interfaces:
-      config:
-        - name: Port-channel1
-          access:
-            vlan: "{{wan_vlan.number }}"
-          mode: "access"
-      state: "{{ 'merged' if  access_vlan.border_switch is defined and access_vlan.border_switch else 'deleted' }}"
-    tags:
-      - wan
-
-  - name: Setup port channel - border spanning tree config
-    cisco.ios.ios_config:
-        lines:
-          - no spanning-tree portfast
-          - no spanning-tree bpduguard enable
-        parents:  "interface port-channel 1"
-    when: access_vlan.border_switch is defined and access_vlan.border_switch
-    tags:
-      - wan
-
-#  - name: Setup misc po ports - border interface
-#    cisco.ios.ios_l2_interfaces:
-#      config:
-#        - name: "{{item}}"
-#          access:
-#            vlan: "{{ wan_vlan.number }}"
-#          mode: "access"
-#     state: "overridden"
-#    when: access_vlan.border_switch is defined and access_vlan.border_switch
- #   with_items: "{{ misc_po_range }}"
- #   tags:
-#      - wan
-
- #   cisco.ios.ios_config:
- #       lines:
- #         - no spanning-tree portfast
- #         - no spanning-tree bpduguard enable
- #         - channel-group 1 mode active
- #       parents:  interface {{ item }}
- #   with_items: "{{ misc_po_range }}"
- #   when: access_vlan.border_switch is defined and access_vlan.border_switch
- #   tags:
- #     - wan
-
-  # - name: Setup misc po ports - trunk interface
-  #   cisco.ios.ios_l2_interfaces:
-  #     config:
-  #       - name: "{{item}}"
-  #         mode: trunk
-  #         trunk:
-  #           allowed_vlans: "{{ global_vlan_range }}"
-  #           encapsulation: dot1q
-  #     state: "overridden"
-  #   with_items: "{{ misc_po_range }}"
-  #   when: access_vlan.border_switch is not defined or not access_vlan.border_switch
-  #   tags:
-  #     - wan
-
-  - name: Setup misc po ports - trunk config
-    cisco.ios.ios_config:
-        lines:
-          - no spanning-tree portfast
-          - no spanning-tree bpduguard enable
-          - ip dhcp snooping trust
-          - switchport trunk encapsulation dot1q
-          - switchport mode trunk
-          - switchport trunk allowed {{ global_vlan_range }}
-        parents:  interface {{ item }}
-    with_items: "{{ misc_po_range }}"
-    when: access_vlan.border_switch is not defined or not access_vlan.border_switch
-    tags:
-      - wan
-
-  - name: Setup misc ports - border
-    cisco.ios.ios_config:
-        lines:
-          - no spanning-tree portfast
-          - no spanning-tree bpduguard enable
-          - switchport mode access
-          - switchport acces vlan {{ wan_vlan.number }}
-          - no switchport trunk encapsulation
-          - spanning-tree bpdufilter enable
-        parents:  interface {{ item }}
-    with_items: "{{ misc_range }}"
-    when: access_vlan.border_switch is defined and access_vlan.border_switch
-    tags:
-      - wan
-
-  - name: Setup misc ports - trunk
+  - name: Setup uplink port-channel
     cisco.ios.ios_config:
       lines:
         - no spanning-tree portfast
         - no spanning-tree bpduguard enable
         - ip dhcp snooping trust
-        - switchport trunk encapsulation dot1q
         - switchport mode trunk
         - switchport trunk allowed {{ global_vlan_range }}
-      parents:  interface {{ item }}
-    with_items: "{{ misc_range }}"
-    when: access_vlan.border_switch is not defined or not access_vlan.border_switch
-    tags:
-      - wan
+        - switchport trunk native {{ access_vlan.number }}
+      parents:  interface port-channel 1
+    when: "portchannel_range != []"
 
-  - name: Setup core VLAN Interface
+  - name: Setup uplink port-channel members
     cisco.ios.ios_config:
       lines:
-        - description interconnect vlan
-        - ip address {{ access_vlan.core_ip }} 255.255.255.0
-      parents: interface vlan {{ core_vlan.number }}
-    tags:
-      - core_vlan
+        - no spanning-tree portfast
+        - no spanning-tree bpduguard enable
+        - ip dhcp snooping trust
+        - switchport mode trunk
+        - switchport trunk allowed {{ global_vlan_range }}
+        - switchport trunk native {{ access_vlan.number }}
+        - channel-group 1 mode active
+      parents: "interface {{ trunk_range }}"
+    when: "portchannel_range != []"
 
   - name: Setup access VLAN Interface
     cisco.ios.ios_config:
@@ -230,8 +114,6 @@
         - description {{ access_vlan.description }} vlan
         - ip address {{ access_vlan.ip }} 255.255.255.0
         - no ip helper-address
-        - ip helper-address {{ dhcp0 }}
-        - ip helper-address {{ dhcp1 }}
       parents: interface vlan {{ access_vlan.number }}
     tags:
       - access-vlan
@@ -246,102 +128,23 @@
     tags:
       - access-vlan
 
-  # - name: Setup access VLAN Interface description
-  #   cisco.ios.ios_interfaces:
-  #     config:
-  #       - name: Vlan{{ access_vlan.number }}
-  #         description: {{ access_vlan.description }} vlan
-  #     state: merged
-
-  # - name: Setup access VLAN Interface settings
-  #   cisco.ios.ios_l3_interfaces:
-  #     config:
-  #       - name: Vlan{{ access_vlan.number }}
-
-
-  - name: Setup WAN VLAN Interface
-    cisco.ios.ios_interfaces:
-      config:
-        - name: Vlan{{ wan_vlan.number }}
-          description: wan vlan
-      state: "{{ 'merged' if  access_vlan.border_switch is defined and access_vlan.border_switch else 'deleted' }}"
-    tags:
-      - wan
-
-  - name: Setup WAN VLAN Interface Address
-    cisco.ios.ios_l3_interfaces:
-      config:
-      - name: Vlan{{ wan_vlan.number }}
-        ipv4:
-          - address: "{{ access_vlan.wan_ip }}/24"
-    when: access_vlan.border_switch is defined and access_vlan.border_switch
-    tags:
-      - wan
-
   - name: Enable ip routing
     cisco.ios.ios_config:
       lines:
         - ip routing
 
-  - name: Setup ospf core
-    cisco.ios.ios_config:
-      lines:
-        - log-adjacency-changes
-        - network {{ core_vlan.subnet }} area 0.0.0.0
-      parents: router ospf 1
-    when: access_vlan.border_switch is defined and access_vlan.border_switch
-    tags:
-      - ospf
-
-  - name: Setup ospf access
-    cisco.ios.ios_config:
-      lines:
-        - network {{ access_vlan.subnet }} area 0.0.0.0
-      parents: router ospf 1
-    when: access_vlan.border_switch is defined and access_vlan.border_switch
-    tags:
-      - ospf
-
-  - name: Setup ospf wan
-    cisco.ios.ios_config:
-      lines:
-        - network {{ wan_vlan.subnet }} area 0.0.0.0
-      parents: router ospf 1
-    when: access_vlan.border_switch is defined and access_vlan.border_switch
-    tags:
-      - wan
-      - ospf
-
-  - name: Setup ospf access
-    cisco.ios.ios_config:
-      lines:
-        - network {{ access_vlan.subnet }} area 0.0.0.0
-      parents: router ospf 1
-    when: access_vlan.border_switch is defined and access_vlan.border_switch
-    tags:
-      - ospf
-
   - name: Remove OSPF trunk switches
     cisco.ios.ios_config:
       lines:
         - no router ospf 1
-    when: access_vlan.border_switch is not defined or not access_vlan.border_switch
     tags:
       - ospf
 
   - name: Setup default route via upstream router
     cisco.ios.ios_config:
       lines:
-        - ip route 0.0.0.0 0.0.0.0 {{ access_vlan.dhcp.router }}
+        - ip route 0.0.0.0 0.0.0.0 {{ access_vlan.gw }}
     when: access_vlan.border_switch is not defined or not access_vlan.border_switch
-    tags:
-      - wan
-
-  - name: Remove default route via upstream router
-    cisco.ios.ios_config:
-      lines:
-        - no ip route 0.0.0.0 0.0.0.0 {{ access_vlan.dhcp.router }}
-    when: access_vlan.border_switch is defined and access_vlan.border_switch
     tags:
       - wan
 
