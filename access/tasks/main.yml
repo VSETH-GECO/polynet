@@ -6,6 +6,12 @@
           - ip dhcp snooping vlan 400-2000
           - ip dhcp snooping
 
+  - name: Enable error recovery
+    cisco.ios.ios_config:
+      lines:
+        - errdisable recovery interval 30
+        - errdisable recovery cause all
+
   - name: Setup rapid PVST
     cisco.ios.ios_config:
       lines:
@@ -79,7 +85,7 @@
           - ip dhcp snooping trust
           - switchport mode trunk
           - switchport trunk allowed {{ global_vlan_range }}
-          - switchport trunk native {{ access_vlan.number }}
+          - switchport trunk native vlan {{ access_vlan.number }}
         parents:  interface {{ item }}
     with_items: "{{ trunk_range }}"
 
@@ -91,28 +97,26 @@
         - ip dhcp snooping trust
         - switchport mode trunk
         - switchport trunk allowed {{ global_vlan_range }}
-        - switchport trunk native {{ access_vlan.number }}
-      parents:  interface port-channel 1
+        - switchport trunk native vlan {{ access_vlan.number }}
+      parents: interface port-channel 1
     when: "portchannel_range != []"
 
   - name: Setup uplink port-channel members
     cisco.ios.ios_config:
       lines:
-        - no spanning-tree portfast
-        - no spanning-tree bpduguard enable
         - ip dhcp snooping trust
         - switchport mode trunk
         - switchport trunk allowed {{ global_vlan_range }}
-        - switchport trunk native {{ access_vlan.number }}
+        - switchport trunk native vlan {{ access_vlan.number }}
         - channel-group 1 mode active
-      parents: "interface {{ trunk_range }}"
+      parents: "interface {{ portchannel_range }}"
     when: "portchannel_range != []"
 
   - name: Setup access VLAN Interface
     cisco.ios.ios_config:
       lines:
         - description {{ access_vlan.description }} vlan
-        - ip address {{ access_vlan.ip }} 255.255.255.0
+        - ip address {{ access_vlan.accessip }} 255.255.255.0
         - no ip helper-address
       parents: interface vlan {{ access_vlan.number }}
     tags:
